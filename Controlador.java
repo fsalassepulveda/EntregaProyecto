@@ -15,7 +15,7 @@ public class Controlador {
 
         while(m==1) {
 
-            robot.getEstado();
+            //robot.getEstado();
 
             m = robot.setDespegarModoAvion( robot.panel.getAltura());
             robot.condiciones_Despegar();

@@ -17,7 +17,7 @@ public class Contenedor {
     private int retroceder = 1;
     private int caminar = 1;
     private String boton;
-    private String boton1;
+    private int tiempo = 0;
     private int contBoton = 0;
     private Armas armas;
     private String tempString;
@@ -33,8 +33,8 @@ public class Contenedor {
         comenzar = 1;
         return 1;
     }
-
-    public void imprimirControl() { //Imprime controles de los robots
+    //Imprime controles de los robots
+    public void imprimirControl() {
         switch (panel.getEstado()) {
             case "Fighter": {
                 System.out.println("\n_________________________________________________________________");
@@ -165,14 +165,18 @@ public class Contenedor {
     }
 
     ////////////////////////////////////////////////////////////////////TIMER
-    Timer caidaBattloid = new Timer(500, new ActionListener() {
+    Timer caidaBattloid = new Timer(1000, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            if (panel.getAltura() > 0) {
+            if (panel.getAltura() >= 0) {
                 panel.setAltura(panel.getAltura() - 10);
-                System.out.println("Battloid cayendo...\nAltura:" + panel.setAltura(panel.getAltura() - 10) + " metros");
+                if(panel.getAltura()<0 ){
+                    panel.setAltura(0);
+                }
+                System.out.println("Battloid cayendo...\nAltura:" + panel.getAltura() + " metros");
                 System.out.println("Velocidad del robot: " + panel.setVelocidad(0) + "km/h");
-            } else {
+            }
+            if (panel.getAltura()<= 0) {
                 caidaBattloid.stop();
             }
         }
@@ -195,6 +199,15 @@ public class Contenedor {
         }
     });
 
+    //Se utiliza mientras esta en modo Fighter (Arreglar para caídas)
+    Timer contTimer = new Timer(1000, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            tiempo ++;
+
+        }
+    });
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public Contenedor(int cambiar) {
@@ -206,7 +219,7 @@ public class Contenedor {
     }
     Panel_de_Control panel = new Panel_de_Control("Fighter", 0);
     Cabeza c = new Cabeza(false);
-    Brazos b_der = new Brazos(0, 0, false, armasArrayListIzq); // 0: Estado fighter (ocultos)
+    Brazos b_der = new Brazos(0, 0, false, armasArrayListIzq);
     Brazos b_izq = new Brazos(0, 0, false, armasArrayListDer);
     Alas a_der = new Alas(true, armasArrayListDer);
     Alas a_izq = new Alas(true, armasArrayListIzq);
@@ -221,6 +234,7 @@ public class Contenedor {
     public void setPanel(Panel_de_Control panel) {
         this.panel = panel;
     }
+
 
 
     public void setCambiar(String cambiar) {
@@ -290,7 +304,6 @@ public class Contenedor {
         }
 
         //CAMBIAR DE FIGHTER A BATTLOID O GERWALK
-
         if ((boton.equals("b")) && (panel.getAltura() < 200) && (panel.getEstado().equals("Fighter"))) {
             caidaBattloid.start();
             panel.setEstado("Battloid");
@@ -329,8 +342,11 @@ public class Contenedor {
     }
 
     public void condiciones_Despegar() {
-        panel.setVelocidad(random.nextInt(450) + 300);
-        panel.setPos_robot(random.nextInt(panel.getL_pista()));
+        //v(t) = v0+ at; v0 = 0 --> v(t) = at //panel.getAceleracion()* tiempo
+        panel.setVelocidad(500);
+        //x(t)= x0 +v0* t +(a/2)*t²; x0 = 0; v0 = 0 --> x(t)= (a/2)*t²
+        panel.setPos_robot((panel.getAceleracion()/2)*(tiempo*tiempo));
+
     }
 
     public void Despegar() {
@@ -416,7 +432,6 @@ public class Contenedor {
             imprimirArmas(b_der.getArma());
             imprimirArmas(b_izq.getArma());
         }
-        //imprimirControl();
 
         System.out.println();
 
@@ -560,22 +575,24 @@ public class Contenedor {
                 retroceder = -1;
                 break;
             }
-            case "d": { //PIERNA DERECHA
+            //PIERNA DERECHA
+            case "d": {
                 if (p_der.isAvanzar()) {
                     System.out.println("No puede avanzar/retroceder dos veces con la misma pierna");
                 }
                 if (!p_der.isAvanzar()) {
                     System.out.println(retroceder * (5) + " metros con la pierna derecha");
-                    panel.setPos_robot(panel.getPos_robot() + avanzar * retroceder);
+                    panel.setPos_robot(panel.getPos_robot() + avanzar*retroceder);
                     p_der.setAvanzar(true);
                     p_izq.setAvanzar(false);
                 }
                 break;
             }
-            case "a": { //PIERNA IZQUIERDA
+            //PIERNA IZQUIERDA
+            case "a": {
 
                 if (p_izq.isAvanzar()) {
-                    System.out.println("No puede avanzar dos veces con la misma pierna");
+                    System.out.println("No puede avanzar/retroceder dos veces con la misma pierna");
                 }
                 if (!p_izq.isAvanzar()) {
                     System.out.println(retroceder * (5) + " metros con la pierna izquierda");
@@ -585,7 +602,8 @@ public class Contenedor {
                 }
                 break;
             }
-            case "k": {//Modo correr
+            //Modo correr
+            case "k": {
                 System.out.println("MODO CORRER ACTIVADO!!!\n");
                 while (estamina > 0) {
                     timerCorrer.start();
@@ -646,8 +664,8 @@ public class Contenedor {
     }
 
 ///////////////////////////////////......GERWALK.......////////////////////////////////////////////////
+
     public void movimientosPajaros() {
-        //imprimirControl();//MENU
 
         System.out.println("¿Que desea? ((V: Volar/ C: Caminar))");
         boton = scanner.nextLine();
@@ -687,7 +705,6 @@ public class Contenedor {
 
     ///////////////////////////////////////////......ARMAS........../////////////////////////////////////////////////////////////
     //Asigna un array de Clase arma a las extremidades que puden utilizarlas
-
     public void asignarArmas() {
 
         b_der.setArma(setArmasArray());
@@ -730,8 +747,8 @@ public class Contenedor {
 
         }
 
-
-        arma.setBalas(arma.getBalas() - 1);  //resta una municion
+    //resta una municion
+        arma.setBalas(arma.getBalas() - 1);
         System.out.println("Disparando...  \nMuniciones restantes:" + arma.getBalas());
 
         return arma;
@@ -774,11 +791,12 @@ public class Contenedor {
 
     }
 
-
-    private Armas crearArmas() {           //Crea las armas de forma aleatoria, tanto el tipo como la cantidad de municiones
+    //Crea las armas de forma aleatoria, tanto el tipo como la cantidad de municiones
+    private Armas crearArmas() {
 
         int tempInt = random.nextInt(2) + 1;
-        String botones[] = {"c", "v", "n", "m"}; // Servira para asignar boton a cada arma
+        // Servira para asignar boton a cada arma
+        String botones[] = {"c", "v", "n", "m"};
 
         if (tempInt == 1) {
 
@@ -843,7 +861,7 @@ public class Contenedor {
 
     }
 
-    private void desactivarArmas(ArrayList<Armas> arrayListDer, ArrayList<Armas> arrayListIzq, String letra) { //solo deja activa l
+    private void desactivarArmas(ArrayList<Armas> arrayListDer, ArrayList<Armas> arrayListIzq, String letra) {
 
 
 
@@ -861,8 +879,8 @@ public class Contenedor {
 
         System.out.println("Armas desactivadas :-) ");
     }
-
-    private void activarArmas(ArrayList<Armas> arrayListDer, ArrayList<Armas> arrayListIzq) { //activa Armas para usarlas en modo avion o pajaro
+    //activa Armas para usarlas en modo avion o pajaro
+    private void activarArmas(ArrayList<Armas> arrayListDer, ArrayList<Armas> arrayListIzq) {
 
         for (Armas i : arrayListDer) {
 

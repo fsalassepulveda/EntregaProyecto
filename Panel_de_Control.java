@@ -5,9 +5,10 @@ public class Panel_de_Control {
 
     private String estado;      //Estado del robot : Fighter, Battloid, Gerwalk
     Random random = new Random();
-    private int l_pista = random.nextInt(300)+100; //Largo inicial de la pista, minimo = 100m
+    private int l_pista = random.nextInt(500)+100; //Largo inicial de la pista, minimo = 100m
     private int altura;     //Altura a la que se encuentra el robot
     private int velocidad = 0;
+    private int aceleracion;
     private int pos_robot = 0;
     private boolean pista = false;
     private boolean caminando = false;
@@ -33,7 +34,9 @@ public class Panel_de_Control {
         return this.altura = altura;
     }
 
-    public int setVelocidad(int velocidad) { return this.velocidad = velocidad; }
+    public int setVelocidad(int velocidad){
+        return this.velocidad = velocidad;
+    }
 
 
     public int setPos_robot(int pos_robot) {
@@ -42,6 +45,11 @@ public class Panel_de_Control {
 
     public void setPista(boolean pista) {
         this.pista = pista;
+    }
+
+    public int setAceleracion(int aceleracion){
+        aceleracion = random.nextInt(6);
+        return this.aceleracion = aceleracion;
     }
 
     //Getter
@@ -59,6 +67,9 @@ public class Panel_de_Control {
 
     public int getVelocidad() {
         return velocidad;
+    }
+    public int getAceleracion(){
+        return aceleracion;
     }
 
 
